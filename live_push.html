@@ -39,7 +39,7 @@ $('#select_camera').on('click', function() {
 })
 $('#start_push').on('click', function() {
     $('#canvas').show();
-    var id = setInterval(function() { draw(id) }, 20);
+    var id = setInterval(function() { draw(id) }, 24);
     if (parseInt(localStorage.selector) == 1) {
         navigator.mediaDevices.getUserMedia(constraints).
         then(handleSuccess).catch(handleError);
