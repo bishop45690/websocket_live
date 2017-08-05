@@ -5,8 +5,8 @@ ws.onopen = function() {
     console.log("handshake success");
 };
 ws.onmessage = function(e) {
-   var data = JSON.parse(e.data);
-   document.getElementById('player').src=data['data']
+   var data = e.data;
+   document.getElementById('player').src=data;
 };
 ws.onerror = function() {
     console.log("error");

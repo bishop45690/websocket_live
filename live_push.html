@@ -16,14 +16,12 @@
 <input type="text" name="compress_precent" id="compress_precent" value="70" style="width: 28px"> %
 <script type="text/javascript">
 var ws = new WebSocket("ws://127.0.0.1:12450/push");
+localStorage.selector = 1;
 ws.onopen = function() {
     console.log("handshake success");
 };
 ws.onmessage = function(e) {
-    var data = JSON.parse(e.data);
-    if (data['type' !== 'owner']) {
-        console.log(data);
-    }
+    
 };
 ws.onerror = function() {
     $('#message').text('Websocket Error');
@@ -72,7 +70,7 @@ function draw(id) {
 }
 
 function push(data) {
-    ws.send(JSON.stringify({ room_id: 1, type: 'owner', 'data': data }));
+    ws.send(data);
 }
 var constraints = {
     audio: false,

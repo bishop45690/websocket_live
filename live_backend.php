@@ -17,12 +17,13 @@ $server->on('open', function (swoole_websocket_server $server, $request) {
 $server->on('message', function (swoole_websocket_server $server, $frame) {
 	echo "receive from {$frame->fd}" . PHP_EOL;
 	$data = $frame->data;
-	$json = json_decode($data, true);
-	if ($json['type'] == 'owner' || $json['type'] == 'danmaku') {
-		foreach ($server->connections as $fd) {
-			$server->push($fd, $data);
-		}
+	foreach ($server->connections as $fd) {
+		$server->push($fd, $data);
 	}
+	//$json = json_decode($data, true);
+	// if ($json['type'] == 'owner' || $json['type'] == 'danmaku') {
+
+	// }
 });
 $server->on('close', function ($ser, $fd) {
 	echo "client {$fd} closed\n";
