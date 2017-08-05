@@ -1,0 +1,14 @@
+<img id="player">
+<script type="text/javascript">
+var ws = new WebSocket("ws://127.0.0.1:12450/play");
+ws.onopen = function() {
+    console.log("handshake success");
+};
+ws.onmessage = function(e) {
+   var data = JSON.parse(e.data);
+   document.getElementById('player').src=data['data']
+};
+ws.onerror = function() {
+    console.log("error");
+};
+</script>

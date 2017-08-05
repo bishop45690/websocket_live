@@ -1,0 +1,61 @@
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<p id="message"></p>
+<video controls="controls" style="display: none"></video>
+<canvas id="canvas" style="display: none"></canvas>
+<br><button id="start_push">开始推送</button> | <button id="stop_push">停止推送</button>
+<script type="text/javascript">
+var ws = new WebSocket("ws://127.0.0.1:12450/push");
+ws.onopen = function() {
+    console.log("handshake success");
+};
+ws.onmessage = function(e) {
+  var data = JSON.parse(e.data);
+  if (data['type'!=='owner']) {
+    console.log(data);
+  }
+};
+ws.onerror = function() {
+    $('#message').text('Websocket Error');
+    console.log("error");
+};
+var video = document.querySelector('video');
+var canvas = window.canvas = document.querySelector('canvas');
+
+$('#start_push').on('click',function(){
+    $('#canvas').show();
+    var id = setInterval(function() { draw(id) }, 20);
+});
+$('#stop_push').on('click',function(){
+    clearInterval(parseInt(localStorage.interval_id));
+});
+
+function draw(id) {
+    localStorage.interval_id = id;
+    if (ws.readyState == 1) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        push(canvas.toDataURL('image/webp'));
+    }
+}
+
+function push(data) {
+    ws.send(JSON.stringify({ room_id: 1, type: 'owner', 'data': data }));
+}
+var constraints = {
+    audio: false,
+    video: true
+};
+
+function handleSuccess(stream) {
+    window.stream = stream; // make stream available to browser console
+    video.srcObject = stream;
+}
+
+function handleError(error) {
+    console.log('navigator.getUserMedia error: ', error);
+}
+
+navigator.mediaDevices.getUserMedia(constraints).
+then(handleSuccess).catch(handleError);
+</script>
