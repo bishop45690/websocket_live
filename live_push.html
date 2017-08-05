@@ -1,18 +1,27 @@
 <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<form>
+    <input id="select_camera" type="radio" name="play_type" value="camera" checked>摄像头
+    <br>
+    <input id="select_video" type="radio" name="play_type" value="files">视频文件
+    <br>
+    <input type="file" name="file_selector" id="file_selector" style="display: none;" />
+</form>
 <p id="message"></p>
-<video controls="controls" style="display: none"></video>
+<video controls="controls" style="display: none" id="video"></video>
 <canvas id="canvas" style="display: none"></canvas>
-<br><button id="start_push">开始推送</button> | <button id="stop_push">停止推送</button>
+<br>
+<button id="start_push">开始推送</button> |
+<button id="stop_push">停止推送</button>
 <script type="text/javascript">
 var ws = new WebSocket("ws://127.0.0.1:12450/push");
 ws.onopen = function() {
     console.log("handshake success");
 };
 ws.onmessage = function(e) {
-  var data = JSON.parse(e.data);
-  if (data['type'!=='owner']) {
-    console.log(data);
-  }
+    var data = JSON.parse(e.data);
+    if (data['type' !== 'owner']) {
+        console.log(data);
+    }
 };
 ws.onerror = function() {
     $('#message').text('Websocket Error');
@@ -20,14 +29,34 @@ ws.onerror = function() {
 };
 var video = document.querySelector('video');
 var canvas = window.canvas = document.querySelector('canvas');
-
-$('#start_push').on('click',function(){
+$('#select_video').on('click', function() {
+    localStorage.selector = 0;
+    $('#file_selector').show();
+})
+$('#select_camera').on('click', function() {
+    localStorage.selector = 1;
+    $('#file_selector').hide();
+})
+$('#start_push').on('click', function() {
     $('#canvas').show();
     var id = setInterval(function() { draw(id) }, 20);
+    if (parseInt(localStorage.selector) == 1) {
+        navigator.mediaDevices.getUserMedia(constraints).
+        then(handleSuccess).catch(handleError);
+    } else {
+        $('#video')[0].play();
+    }
 });
-$('#stop_push').on('click',function(){
+$('#stop_push').on('click', function() {
     clearInterval(parseInt(localStorage.interval_id));
+    $('#video')[0].pause();
 });
+
+document.querySelector('input[name=file_selector]').onchange = function(e) {
+    var file = e.target.files[0];
+    var objecturl = window.URL.createObjectURL(file);
+    $('#video')[0].src = objecturl;
+}
 
 function draw(id) {
     localStorage.interval_id = id;
@@ -55,7 +84,4 @@ function handleSuccess(stream) {
 function handleError(error) {
     console.log('navigator.getUserMedia error: ', error);
 }
-
-navigator.mediaDevices.getUserMedia(constraints).
-then(handleSuccess).catch(handleError);
 </script>
