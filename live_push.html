@@ -11,7 +11,9 @@
 <canvas id="canvas" style="display: none"></canvas>
 <br>
 <button id="start_push">开始推送</button> |
-<button id="stop_push">停止推送</button>
+<button id="stop_push">停止推送</button><br><br>
+<label for="compress_precent">压缩比例:</label>
+<input type="text" name="compress_precent" id="compress_precent" value="70" style="width: 28px"> %
 <script type="text/javascript">
 var ws = new WebSocket("ws://127.0.0.1:12450/push");
 ws.onopen = function() {
@@ -61,8 +63,9 @@ document.querySelector('input[name=file_selector]').onchange = function(e) {
 function draw(id) {
     localStorage.interval_id = id;
     if (ws.readyState == 1) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        var compress_precent = parseInt($('#compress_precent').val())/100;
+        canvas.width = video.videoWidth*compress_precent;
+        canvas.height = video.videoHeight*compress_precent;
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         push(canvas.toDataURL('image/webp'));
     }
